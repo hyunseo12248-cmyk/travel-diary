@@ -1,0 +1,2957 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>고성 · 속초 1박 2일 여행</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+:root{
+  --navy:#123b5b;
+  --blue:#2584c6;
+  --blue-dark:#176da6;
+  --sky:#eaf7ff;
+  --sky2:#f7fcff;
+  --line:#dcecf6;
+  --text:#18364b;
+  --muted:#748a9a;
+  --white:#fff;
+  --red:#e76565;
+  --green:#45a88a;
+  --orange:#f39b46;
+  --shadow:0 12px 35px rgba(34,91,130,.10);
+}
+
+*{box-sizing:border-box}
+
+html{scroll-behavior:smooth}
+
+body{
+  margin:0;
+  color:var(--text);
+  font-family:
+    Pretendard,
+    "Noto Sans KR",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  background:
+    radial-gradient(circle at 90% 0%,#ccecff 0,transparent 24%),
+    linear-gradient(180deg,#edf9ff 0,#f9fcff 45%,#fff 100%);
+  min-height:100vh;
+}
+
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+
+.container{
+  width:min(1080px,calc(100% - 30px));
+  margin:auto;
+}
+
+/* HERO */
+
+.hero{
+  padding:30px 0 20px;
+}
+
+.hero-card{
+  position:relative;
+  overflow:hidden;
+  min-height:275px;
+  padding:42px;
+  color:white;
+  border-radius:30px;
+  background:
+    linear-gradient(120deg,rgba(13,60,95,.98),rgba(29,132,194,.87));
+  box-shadow:0 24px 55px rgba(26,87,127,.20);
+}
+
+.hero-card::before{
+  content:"";
+  position:absolute;
+  width:340px;
+  height:340px;
+  right:-100px;
+  top:-180px;
+  border-radius:50%;
+  background:rgba(255,255,255,.1);
+}
+
+.hero-card::after{
+  content:"〰 〰 〰";
+  position:absolute;
+  right:25px;
+  bottom:15px;
+  color:rgba(255,255,255,.09);
+  font-size:60px;
+}
+
+.hero-badge{
+  position:relative;
+  z-index:2;
+  display:inline-flex;
+  padding:8px 13px;
+  border:1px solid rgba(255,255,255,.25);
+  border-radius:999px;
+  background:rgba(255,255,255,.12);
+  font-size:12px;
+  font-weight:800;
+}
+
+h1{
+  position:relative;
+  z-index:2;
+  margin:18px 0 0;
+  font-size:clamp(34px,6vw,53px);
+  line-height:1.08;
+  letter-spacing:-2.3px;
+}
+
+.hero-sub{
+  position:relative;
+  z-index:2;
+  margin:14px 0 0;
+  color:rgba(255,255,255,.82);
+  font-size:14px;
+}
+
+.hero-dates{
+  position:relative;
+  z-index:2;
+  display:flex;
+  gap:8px;
+  margin-top:26px;
+}
+
+.date-pill{
+  padding:9px 13px;
+  border-radius:10px;
+  background:rgba(255,255,255,.14);
+  font-size:12px;
+  font-weight:800;
+}
+
+/* NAV */
+
+.quick-nav{
+  position:sticky;
+  top:8px;
+  z-index:50;
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+  margin-bottom:32px;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(12px);
+  box-shadow:0 8px 25px rgba(37,94,133,.08);
+}
+
+.quick-nav a{
+  flex:1;
+  min-width:max-content;
+  padding:10px 12px;
+  color:#577387;
+  border-radius:9px;
+  text-align:center;
+  text-decoration:none;
+  font-size:11px;
+  font-weight:850;
+}
+
+.quick-nav a:hover{
+  color:var(--blue);
+  background:var(--sky);
+}
+
+/* COMMON */
+
+.section{
+  margin-bottom:48px;
+  scroll-margin-top:80px;
+}
+
+.section-heading{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:15px;
+  margin-bottom:16px;
+}
+
+.section-heading h2{
+  margin:0;
+  font-size:23px;
+  letter-spacing:-.8px;
+}
+
+.section-heading p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.section-actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+}
+
+.card{
+  border:1px solid #deedf7;
+  border-radius:21px;
+  background:rgba(255,255,255,.94);
+  box-shadow:var(--shadow);
+}
+
+.btn{
+  padding:10px 14px;
+  border:0;
+  border-radius:10px;
+  font-size:12px;
+  font-weight:850;
+  transition:.15s;
+}
+
+.btn:hover{transform:translateY(-1px)}
+
+.btn-primary{
+  color:white;
+  background:var(--blue);
+}
+
+.btn-light{
+  color:var(--navy);
+  border:1px solid var(--line);
+  background:white;
+}
+
+.btn-red{
+  color:var(--red);
+  border:1px solid #ffdada;
+  background:#fff5f5;
+}
+
+/* SUMMARY */
+
+.summary{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:40px;
+}
+
+.summary-card{
+  padding:17px 18px;
+  border:1px solid #e1eff8;
+  border-radius:16px;
+  background:rgba(255,255,255,.85);
+}
+
+.summary-label{
+  color:var(--muted);
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.7px;
+}
+
+.summary-value{
+  margin-top:5px;
+  color:var(--navy);
+  font-size:17px;
+  font-weight:900;
+}
+
+/* SCHEDULE TABS */
+
+.schedule-tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:13px;
+  padding:6px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:#f2f9fd;
+}
+
+.schedule-tab{
+  padding:14px;
+  border:0;
+  border-radius:11px;
+  color:#71899a;
+  background:transparent;
+  font-weight:850;
+}
+
+.schedule-tab span{
+  display:block;
+  margin-top:2px;
+  font-size:10px;
+  font-weight:700;
+  opacity:.75;
+}
+
+.schedule-tab.active{
+  color:white;
+  background:linear-gradient(135deg,#1d75ae,#2f94d1);
+  box-shadow:0 6px 16px rgba(37,132,198,.2);
+}
+
+.day-card{overflow:hidden}
+
+.day-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 23px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(135deg,#f8fdff,#eaf7ff);
+}
+
+.day-label{
+  color:var(--blue);
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+.day-title{
+  margin-top:3px;
+  font-size:21px;
+  font-weight:900;
+}
+
+.count{
+  display:grid;
+  place-items:center;
+  width:34px;
+  height:34px;
+  color:white;
+  border-radius:50%;
+  background:var(--blue);
+  font-size:11px;
+  font-weight:900;
+}
+
+.timeline{
+  padding:24px;
+}
+
+.empty{
+  padding:38px 12px;
+  color:#9babb7;
+  text-align:center;
+  font-size:12px;
+  line-height:1.7;
+}
+
+.schedule-item{
+  position:relative;
+  display:grid;
+  grid-template-columns:60px 1fr;
+  gap:15px;
+  padding-bottom:24px;
+}
+
+.schedule-item:last-child{padding-bottom:0}
+
+.schedule-item:not(:last-child)::after{
+  content:"";
+  position:absolute;
+  left:68px;
+  top:26px;
+  bottom:-2px;
+  width:2px;
+  background:#dceef9;
+}
+
+.time{
+  padding-top:2px;
+  color:var(--navy);
+  text-align:right;
+  font-size:12px;
+  font-weight:900;
+}
+
+.event{
+  position:relative;
+  padding-left:17px;
+}
+
+.event::before{
+  content:"";
+  position:absolute;
+  left:-10px;
+  top:4px;
+  width:9px;
+  height:9px;
+  border:3px solid #d9effc;
+  border-radius:50%;
+  background:var(--blue);
+}
+
+.event-top{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.event-title{
+  margin:0;
+  font-size:15px;
+  line-height:1.4;
+  font-weight:850;
+}
+
+.place{
+  display:inline-block;
+  margin-top:6px;
+  padding:5px 7px;
+  color:#2678ac;
+  border:0;
+  border-radius:7px;
+  background:var(--sky);
+  font-size:10px;
+  font-weight:750;
+}
+
+.note{
+  margin-top:7px;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+  white-space:pre-wrap;
+}
+
+.item-actions{
+  display:flex;
+  flex-shrink:0;
+}
+
+.icon-btn{
+  display:grid;
+  place-items:center;
+  width:28px;
+  height:28px;
+  padding:0;
+  color:#778d9c;
+  border:0;
+  border-radius:7px;
+  background:transparent;
+}
+
+.icon-btn:hover{
+  color:var(--blue);
+  background:#edf7fc;
+}
+
+#fileInput{display:none}
+
+/* TRANSPORT + HOTEL */
+
+.info-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:17px;
+}
+
+.info-card{
+  overflow:hidden;
+}
+
+.info-card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 20px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(135deg,#f8fdff,#edf8ff);
+}
+
+.info-card-title{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-size:16px;
+  font-weight:900;
+}
+
+.info-icon{
+  display:grid;
+  place-items:center;
+  width:36px;
+  height:36px;
+  border-radius:10px;
+  background:#dff3ff;
+  font-size:19px;
+}
+
+.info-body{
+  padding:20px;
+}
+
+.main-info{
+  margin-bottom:7px;
+  font-size:18px;
+  font-weight:900;
+}
+
+.sub-info{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.6;
+}
+
+.chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:14px;
+}
+
+.chip{
+  padding:7px 9px;
+  color:#3c748f;
+  border-radius:8px;
+  background:#edf8fd;
+  font-size:10px;
+  font-weight:800;
+}
+
+.bus-route{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:15px 0;
+}
+
+.bus-point{
+  flex:1;
+}
+
+.bus-point small{
+  display:block;
+  margin-bottom:3px;
+  color:var(--muted);
+  font-size:9px;
+}
+
+.bus-point strong{
+  font-size:14px;
+}
+
+.bus-arrow{
+  color:var(--blue);
+  font-weight:900;
+}
+
+/* SAVED PLACES */
+
+.place-filter{
+  display:flex;
+  gap:7px;
+  overflow-x:auto;
+  margin-bottom:13px;
+}
+
+.filter-btn{
+  min-width:max-content;
+  padding:8px 12px;
+  color:#627d8e;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:white;
+  font-size:11px;
+  font-weight:800;
+}
+
+.filter-btn.active{
+  color:white;
+  border-color:var(--blue);
+  background:var(--blue);
+}
+
+.saved-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:11px;
+}
+
+.saved-place{
+  position:relative;
+  padding:17px;
+}
+
+.saved-category{
+  display:inline-block;
+  margin-bottom:10px;
+  padding:5px 8px;
+  border-radius:999px;
+  font-size:9px;
+  font-weight:900;
+}
+
+.cat-cafe{
+  color:#9b642c;
+  background:#fff2df;
+}
+
+.cat-food{
+  color:#c05b52;
+  background:#ffebe8;
+}
+
+.cat-spot{
+  color:#267e69;
+  background:#e5f8f2;
+}
+
+.saved-name{
+  margin-bottom:12px;
+  font-size:15px;
+  font-weight:900;
+}
+
+.saved-actions{
+  display:flex;
+  gap:6px;
+}
+
+.saved-actions .btn{
+  flex:1;
+  padding:8px;
+}
+
+.saved-delete{
+  position:absolute;
+  top:11px;
+  right:11px;
+  width:27px;
+  height:27px;
+  color:#a2b1ba;
+  border:0;
+  border-radius:50%;
+  background:transparent;
+}
+
+.saved-delete:hover{
+  color:var(--red);
+  background:#fff2f2;
+}
+
+/* COST */
+
+.money-layout{
+  display:grid;
+  grid-template-columns:1.4fr .6fr;
+  gap:17px;
+}
+
+.expense-card{padding:21px}
+
+.expense-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.expense-item{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  align-items:center;
+  gap:11px;
+  padding:12px;
+  border:1px solid #e5eff5;
+  border-radius:10px;
+  background:#fbfdff;
+}
+
+.expense-name{
+  font-size:12px;
+  font-weight:850;
+}
+
+.expense-meta{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:9px;
+}
+
+.expense-price{
+  color:var(--navy);
+  font-size:12px;
+  font-weight:900;
+}
+
+.money-summary{
+  padding:22px;
+  color:white;
+  background:linear-gradient(145deg,#16466b,#2584c6);
+}
+
+.money-summary-label{
+  color:rgba(255,255,255,.7);
+  font-size:10px;
+  font-weight:850;
+}
+
+.money-total{
+  margin:6px 0 22px;
+  font-size:27px;
+  font-weight:900;
+}
+
+.person-box{
+  padding-top:15px;
+  border-top:1px solid rgba(255,255,255,.18);
+}
+
+.person-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.person-row input{
+  width:65px;
+  color:white;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.1);
+}
+
+.per-person{
+  margin-top:12px;
+  font-size:11px;
+}
+
+.per-person strong{
+  display:block;
+  margin-top:3px;
+  font-size:20px;
+}
+
+/* CHECKLIST */
+
+.check-card{padding:22px}
+
+.check-progress-wrap{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.progress{
+  flex:1;
+  height:8px;
+  overflow:hidden;
+  border-radius:20px;
+  background:#e9f2f7;
+}
+
+.progress-bar{
+  width:0;
+  height:100%;
+  border-radius:20px;
+  background:linear-gradient(90deg,var(--blue),#69c5ea);
+}
+
+.progress-text{
+  min-width:45px;
+  color:var(--blue);
+  font-size:10px;
+  font-weight:900;
+}
+
+.check-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+
+.check-item{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:11px 12px;
+  border:1px solid #e4eff6;
+  border-radius:10px;
+  background:#fbfdff;
+}
+
+.check-item.done .check-text{
+  color:#9eacb5;
+  text-decoration:line-through;
+}
+
+.check-item input{
+  width:17px;
+  height:17px;
+  accent-color:var(--blue);
+}
+
+.check-text{
+  flex:1;
+  font-size:11px;
+  font-weight:750;
+}
+
+.check-delete{
+  color:#a8b5bd;
+  border:0;
+  background:none;
+}
+
+.add-row{
+  display:flex;
+  gap:7px;
+  margin-top:12px;
+}
+
+.add-row input{flex:1}
+
+/* FORMS */
+
+input,select,textarea{
+  width:100%;
+  padding:11px 12px;
+  color:var(--text);
+  outline:none;
+  border:1px solid #dce8f0;
+  border-radius:10px;
+  background:#fbfdff;
+}
+
+input:focus,select:focus,textarea:focus{
+  border-color:#6ab5e3;
+  box-shadow:0 0 0 3px rgba(68,158,216,.1);
+}
+
+textarea{
+  min-height:80px;
+  resize:vertical;
+}
+
+.modal-bg{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:17px;
+  background:rgba(10,34,52,.5);
+  backdrop-filter:blur(5px);
+}
+
+.modal-bg.show{display:flex}
+
+.modal{
+  width:min(520px,100%);
+  max-height:90vh;
+  overflow-y:auto;
+  padding:25px;
+  border-radius:22px;
+  background:white;
+  box-shadow:0 30px 70px rgba(0,0,0,.2);
+}
+
+.modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+.modal-header h3{
+  margin:0;
+  font-size:20px;
+}
+
+.close-btn{
+  width:32px;
+  height:32px;
+  color:#667d8e;
+  border:0;
+  border-radius:50%;
+  background:#f0f6f9;
+  font-size:18px;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:13px;
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.field.full{grid-column:1/-1}
+
+label{
+  color:#4d687a;
+  font-size:10px;
+  font-weight:850;
+}
+
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:7px;
+  margin-top:20px;
+}
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:22px;
+  z-index:200;
+  padding:11px 16px;
+  color:white;
+  border-radius:10px;
+  background:#153a5b;
+  box-shadow:0 10px 30px rgba(0,0,0,.16);
+  font-size:11px;
+  font-weight:800;
+  opacity:0;
+  pointer-events:none;
+  transform:translate(-50%,20px);
+  transition:.2s;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+/* MOBILE */
+
+@media(max-width:780px){
+  .container{
+    width:min(100% - 22px,1080px);
+  }
+
+  .hero{
+    padding-top:14px;
+  }
+
+  .hero-card{
+    min-height:240px;
+    padding:28px 22px;
+    border-radius:23px;
+  }
+
+  .summary{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .section-heading{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .section-actions{
+    width:100%;
+  }
+
+  .section-actions .btn,
+  .section-actions label{
+    flex:1;
+    text-align:center;
+  }
+
+  .info-grid,
+  .money-layout{
+    grid-template-columns:1fr;
+  }
+
+  .saved-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .field.full{
+    grid-column:auto;
+  }
+}
+
+@media(max-width:520px){
+  .saved-grid,
+  .check-grid{
+    grid-template-columns:1fr;
+  }
+
+  .schedule-tabs{
+    gap:5px;
+  }
+
+  .schedule-tab{
+    padding:12px 5px;
+    font-size:12px;
+  }
+
+  .timeline{
+    padding:19px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="hero">
+  <div class="container">
+    <div class="hero-card">
+
+      <div class="hero-badge">
+        🌊 GANGWON TRIP
+      </div>
+
+      <h1>
+        고성 · 속초<br>
+        1박 2일 여행
+      </h1>
+
+      <p class="hero-sub">
+        친구들과 함께 만드는 우리만의 강원도 여행 계획
+      </p>
+
+      <div class="hero-dates">
+        <div class="date-pill">10월 9일</div>
+        <div class="date-pill">→</div>
+        <div class="date-pill">10월 10일</div>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+
+<main class="container">
+
+<nav class="quick-nav">
+  <a href="#schedule">🗓 일정</a>
+  <a href="#transport">🚌 교통·숙소</a>
+  <a href="#places">📍 저장한 장소</a>
+  <a href="#money">💳 비용</a>
+  <a href="#check">🧳 준비물</a>
+</nav>
+
+
+<!-- SUMMARY -->
+
+<section class="summary">
+
+  <div class="summary-card">
+    <div class="summary-label">DESTINATION</div>
+    <div class="summary-value">고성 · 속초</div>
+  </div>
+
+  <div class="summary-card">
+    <div class="summary-label">DURATION</div>
+    <div class="summary-value">1박 2일</div>
+  </div>
+
+  <div class="summary-card">
+    <div class="summary-label">SCHEDULE</div>
+    <div class="summary-value">
+      <span id="totalCount">0</span>개
+    </div>
+  </div>
+
+  <div class="summary-card">
+    <div class="summary-label">SAVED PLACE</div>
+    <div class="summary-value">
+      <span id="placeCount">0</span>곳
+    </div>
+  </div>
+
+</section>
+
+
+<!-- 일정 -->
+
+<section class="section" id="schedule">
+
+  <div class="section-heading">
+
+    <div>
+      <h2>여행 일정 🗓️</h2>
+      <p>
+        날짜를 선택하면 해당 날짜의 일정만 보여요.
+      </p>
+    </div>
+
+    <div class="section-actions">
+
+      <label class="btn btn-light" for="fileInput">
+        ↑ 엑셀 불러오기
+      </label>
+
+      <input
+        type="file"
+        id="fileInput"
+        accept=".xlsx,.xls,.csv"
+      >
+
+      <button
+        class="btn btn-primary"
+        onclick="openScheduleModal()"
+      >
+        ＋ 일정 추가
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="schedule-tabs">
+
+    <button
+      class="schedule-tab active"
+      id="tab9"
+      onclick="changeDay('9')"
+    >
+      10월 9일
+      <span>DAY 01</span>
+    </button>
+
+    <button
+      class="schedule-tab"
+      id="tab10"
+      onclick="changeDay('10')"
+    >
+      10월 10일
+      <span>DAY 02</span>
+    </button>
+
+  </div>
+
+
+  <div class="day-card card">
+
+    <div class="day-header">
+
+      <div>
+        <div class="day-label" id="currentDayLabel">
+          DAY 01
+        </div>
+
+        <div class="day-title" id="currentDayTitle">
+          10월 9일
+        </div>
+      </div>
+
+      <div class="count" id="currentCount">
+        0
+      </div>
+
+    </div>
+
+    <div class="timeline" id="timeline"></div>
+
+  </div>
+
+</section>
+
+
+<!-- 교통 + 숙소 -->
+
+<section class="section" id="transport">
+
+  <div class="section-heading">
+    <div>
+      <h2>교통 · 숙소 🚌</h2>
+      <p>
+        버스와 숙소 정보를 한 곳에서 확인할 수 있어요.
+      </p>
+    </div>
+  </div>
+
+
+  <div class="info-grid">
+
+    <!-- BUS -->
+
+    <div class="info-card card">
+
+      <div class="info-card-head">
+
+        <div class="info-card-title">
+          <div class="info-icon">🚌</div>
+          버스
+        </div>
+
+        <button
+          class="btn btn-light"
+          onclick="openBusModal()"
+        >
+          ✎ 수정
+        </button>
+
+      </div>
+
+      <div class="info-body">
+
+        <div class="main-info" id="busName">
+          버스 정보를 등록해주세요
+        </div>
+
+        <div class="bus-route">
+
+          <div class="bus-point">
+            <small>출발</small>
+            <strong id="busFrom">-</strong>
+          </div>
+
+          <div class="bus-arrow">→</div>
+
+          <div class="bus-point">
+            <small>도착</small>
+            <strong id="busTo">-</strong>
+          </div>
+
+        </div>
+
+        <div class="chips">
+
+          <span class="chip" id="busDeparture">
+            출발 -
+          </span>
+
+          <span class="chip" id="busArrival">
+            도착 -
+          </span>
+
+        </div>
+
+        <div
+          class="sub-info"
+          id="busNote"
+          style="margin-top:13px"
+        >
+          메모 없음
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- HOTEL -->
+
+    <div class="info-card card">
+
+      <div class="info-card-head">
+
+        <div class="info-card-title">
+          <div class="info-icon">🏨</div>
+          숙소
+        </div>
+
+        <button
+          class="btn btn-light"
+          onclick="openHotelModal()"
+        >
+          ✎ 수정
+        </button>
+
+      </div>
+
+      <div class="info-body">
+
+        <div class="main-info" id="hotelName">
+          숙소를 등록해주세요
+        </div>
+
+        <div class="sub-info" id="hotelAddress">
+          숙소 주소를 입력해주세요.
+        </div>
+
+        <div class="chips">
+
+          <span class="chip" id="checkinText">
+            체크인 -
+          </span>
+
+          <span class="chip" id="checkoutText">
+            체크아웃 -
+          </span>
+
+        </div>
+
+        <div
+          class="sub-info"
+          id="hotelNote"
+          style="margin-top:13px"
+        >
+          메모 없음
+        </div>
+
+        <button
+          class="btn btn-primary"
+          style="margin-top:14px"
+          onclick="openHotelMap()"
+        >
+          📍 지도 보기
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- 저장 장소 -->
+
+<section class="section" id="places">
+
+  <div class="section-heading">
+
+    <div>
+      <h2>가고 싶은 곳 📍</h2>
+      <p>
+        맛집, 카페, 관광지를 미리 저장해두세요.
+      </p>
+    </div>
+
+    <button
+      class="btn btn-primary"
+      onclick="openPlaceModal()"
+    >
+      ＋ 장소 추가
+    </button>
+
+  </div>
+
+
+  <div class="place-filter">
+
+    <button
+      class="filter-btn active"
+      onclick="setPlaceFilter('전체',this)"
+    >
+      전체
+    </button>
+
+    <button
+      class="filter-btn"
+      onclick="setPlaceFilter('카페',this)"
+    >
+      ☕ 카페
+    </button>
+
+    <button
+      class="filter-btn"
+      onclick="setPlaceFilter('식당',this)"
+    >
+      🍽 식당
+    </button>
+
+    <button
+      class="filter-btn"
+      onclick="setPlaceFilter('가볼만한 곳',this)"
+    >
+      🌊 가볼 만한 곳
+    </button>
+
+  </div>
+
+
+  <div class="saved-grid" id="savedPlaces"></div>
+
+</section>
+
+
+<!-- 비용 -->
+
+<section class="section" id="money">
+
+  <div class="section-heading">
+
+    <div>
+      <h2>여행 비용 💳</h2>
+      <p>
+        공동 비용과 1인당 금액을 확인할 수 있어요.
+      </p>
+    </div>
+
+    <button
+      class="btn btn-primary"
+      onclick="openExpenseModal()"
+    >
+      ＋ 비용 추가
+    </button>
+
+  </div>
+
+
+  <div class="money-layout">
+
+    <div class="expense-card card">
+      <div class="expense-list" id="expenseList"></div>
+    </div>
+
+
+    <div class="money-summary card">
+
+      <div class="money-summary-label">
+        TOTAL
+      </div>
+
+      <div class="money-total" id="moneyTotal">
+        0원
+      </div>
+
+      <div class="person-box">
+
+        <div class="person-row">
+          <span>여행 인원</span>
+
+          <input
+            type="number"
+            min="1"
+            id="peopleCount"
+            onchange="updatePeople()"
+          >
+        </div>
+
+        <div class="per-person">
+          1인당
+          <strong id="perPerson">0원</strong>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- 준비물 : 맨 아래 -->
+
+<section class="section" id="check">
+
+  <div class="section-heading">
+
+    <div>
+      <h2>준비물 체크 🧳</h2>
+      <p>
+        출발 전에 마지막으로 확인해요.
+      </p>
+    </div>
+
+  </div>
+
+
+  <div class="check-card card">
+
+    <div class="check-progress-wrap">
+
+      <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div class="progress-text" id="progressText">
+        0 / 0
+      </div>
+
+    </div>
+
+
+    <div class="check-grid" id="checkList"></div>
+
+
+    <div class="add-row">
+
+      <input
+        id="newCheckInput"
+        placeholder="추가 준비물 입력"
+        onkeydown="if(event.key==='Enter')addChecklist()"
+      >
+
+      <button
+        class="btn btn-primary"
+        onclick="addChecklist()"
+      >
+        추가
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+
+<!-- 일정 MODAL -->
+
+<div class="modal-bg" id="scheduleModal">
+<div class="modal">
+
+  <div class="modal-header">
+    <h3 id="scheduleModalTitle">일정 추가</h3>
+    <button class="close-btn" onclick="closeModal('scheduleModal')">×</button>
+  </div>
+
+  <div class="form-grid">
+
+    <div class="field">
+      <label>날짜</label>
+      <select id="scheduleDate">
+        <option value="10월 9일">10월 9일</option>
+        <option value="10월 10일">10월 10일</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>시간</label>
+      <input type="time" id="scheduleTime">
+    </div>
+
+    <div class="field full">
+      <label>장소</label>
+      <input id="schedulePlace" placeholder="예: 속초 중앙시장">
+    </div>
+
+    <div class="field full">
+      <label>일정</label>
+      <input id="scheduleName" placeholder="예: 중앙시장 구경 & 점심">
+    </div>
+
+    <div class="field full">
+      <label>비고</label>
+      <textarea id="scheduleNote" placeholder="예약, 주차, 준비물 등"></textarea>
+    </div>
+
+  </div>
+
+  <div class="modal-actions">
+    <button class="btn btn-light" onclick="closeModal('scheduleModal')">취소</button>
+    <button class="btn btn-primary" onclick="saveSchedule()">저장</button>
+  </div>
+
+</div>
+</div>
+
+
+<!-- BUS MODAL -->
+
+<div class="modal-bg" id="busModal">
+<div class="modal">
+
+  <div class="modal-header">
+    <h3>버스 정보</h3>
+    <button class="close-btn" onclick="closeModal('busModal')">×</button>
+  </div>
+
+  <div class="form-grid">
+
+    <div class="field full">
+      <label>버스 / 예약 정보</label>
+      <input id="busNameInput" placeholder="예: 동서울 → 속초 고속버스">
+    </div>
+
+    <div class="field">
+      <label>출발지</label>
+      <input id="busFromInput" placeholder="동서울터미널">
+    </div>
+
+    <div class="field">
+      <label>도착지</label>
+      <input id="busToInput" placeholder="속초고속버스터미널">
+    </div>
+
+    <div class="field">
+      <label>출발 시간</label>
+      <input type="time" id="busDepartureInput">
+    </div>
+
+    <div class="field">
+      <label>도착 시간</label>
+      <input type="time" id="busArrivalInput">
+    </div>
+
+    <div class="field full">
+      <label>비고</label>
+      <textarea
+        id="busNoteInput"
+        placeholder="예: 10분 전 탑승 / 모바일 승차권"
+      ></textarea>
+    </div>
+
+  </div>
+
+  <div class="modal-actions">
+    <button class="btn btn-light" onclick="closeModal('busModal')">취소</button>
+    <button class="btn btn-primary" onclick="saveBus()">저장</button>
+  </div>
+
+</div>
+</div>
+
+
+<!-- HOTEL MODAL -->
+
+<div class="modal-bg" id="hotelModal">
+<div class="modal">
+
+  <div class="modal-header">
+    <h3>숙소 정보</h3>
+    <button class="close-btn" onclick="closeModal('hotelModal')">×</button>
+  </div>
+
+  <div class="form-grid">
+
+    <div class="field full">
+      <label>숙소 이름</label>
+      <input id="hotelNameInput" placeholder="숙소 이름">
+    </div>
+
+    <div class="field full">
+      <label>주소</label>
+      <input id="hotelAddressInput" placeholder="숙소 주소">
+    </div>
+
+    <div class="field">
+      <label>체크인</label>
+      <input type="time" id="checkinInput">
+    </div>
+
+    <div class="field">
+      <label>체크아웃</label>
+      <input type="time" id="checkoutInput">
+    </div>
+
+    <div class="field full">
+      <label>비고</label>
+      <textarea
+        id="hotelNoteInput"
+        placeholder="주차, 조식, 예약번호 등"
+      ></textarea>
+    </div>
+
+  </div>
+
+  <div class="modal-actions">
+    <button class="btn btn-light" onclick="closeModal('hotelModal')">취소</button>
+    <button class="btn btn-primary" onclick="saveHotel()">저장</button>
+  </div>
+
+</div>
+</div>
+
+
+<!-- PLACE MODAL -->
+
+<div class="modal-bg" id="placeModal">
+<div class="modal">
+
+  <div class="modal-header">
+    <h3>가고 싶은 곳 추가</h3>
+    <button class="close-btn" onclick="closeModal('placeModal')">×</button>
+  </div>
+
+  <div class="form-grid">
+
+    <div class="field full">
+      <label>종류</label>
+
+      <select id="placeCategory">
+        <option value="식당">🍽 식당</option>
+        <option value="카페">☕ 카페</option>
+        <option value="가볼만한 곳">🌊 가볼 만한 곳</option>
+      </select>
+    </div>
+
+    <div class="field full">
+      <label>이름</label>
+      <input
+        id="placeNameInput"
+        placeholder="예: 봉포머구리집"
+      >
+    </div>
+
+    <div class="field full">
+      <label>장소 URL</label>
+      <input
+        id="placeUrlInput"
+        type="url"
+        placeholder="https://..."
+      >
+    </div>
+
+  </div>
+
+  <div class="modal-actions">
+    <button class="btn btn-light" onclick="closeModal('placeModal')">취소</button>
+    <button class="btn btn-primary" onclick="savePlace()">저장</button>
+  </div>
+
+</div>
+</div>
+
+
+<!-- EXPENSE MODAL -->
+
+<div class="modal-bg" id="expenseModal">
+<div class="modal">
+
+  <div class="modal-header">
+    <h3>비용 추가</h3>
+    <button class="close-btn" onclick="closeModal('expenseModal')">×</button>
+  </div>
+
+  <div class="form-grid">
+
+    <div class="field full">
+      <label>항목</label>
+      <input id="expenseName" placeholder="예: 숙소">
+    </div>
+
+    <div class="field">
+      <label>금액</label>
+      <input type="number" id="expensePrice" placeholder="120000">
+    </div>
+
+    <div class="field">
+      <label>결제자</label>
+      <input id="expensePayer" placeholder="예: 현서">
+    </div>
+
+  </div>
+
+  <div class="modal-actions">
+    <button class="btn btn-light" onclick="closeModal('expenseModal')">취소</button>
+    <button class="btn btn-primary" onclick="saveExpense()">저장</button>
+  </div>
+
+</div>
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+/* STORAGE */
+
+const KEY="gangwon_trip_v3";
+
+const defaultData={
+  schedules:[],
+
+  bus:{
+    name:"",
+    from:"",
+    to:"",
+    departure:"",
+    arrival:"",
+    note:""
+  },
+
+  hotel:{
+    name:"",
+    address:"",
+    checkin:"",
+    checkout:"",
+    note:""
+  },
+
+  places:[],
+
+  expenses:[],
+
+  people:4,
+
+  checklist:[
+    {id:"c1",text:"신분증",done:false},
+    {id:"c2",text:"휴대폰 충전기",done:false},
+    {id:"c3",text:"보조배터리",done:false},
+    {id:"c4",text:"세면도구",done:false},
+    {id:"c5",text:"갈아입을 옷",done:false},
+    {id:"c6",text:"우산",done:false}
+  ]
+};
+
+let data=loadData();
+
+let currentDay="9";
+let placeFilter="전체";
+let editingScheduleId=null;
+
+
+function loadData(){
+
+  try{
+
+    const saved=localStorage.getItem(KEY);
+
+    if(saved){
+
+      const p=JSON.parse(saved);
+
+      return{
+        ...defaultData,
+        ...p,
+
+        bus:{
+          ...defaultData.bus,
+          ...(p.bus||{})
+        },
+
+        hotel:{
+          ...defaultData.hotel,
+          ...(p.hotel||{})
+        }
+      };
+
+    }
+
+  }catch(e){}
+
+  return JSON.parse(JSON.stringify(defaultData));
+}
+
+
+function persist(){
+  localStorage.setItem(KEY,JSON.stringify(data));
+}
+
+
+function uid(){
+
+  if(window.crypto && crypto.randomUUID){
+    return crypto.randomUUID();
+  }
+
+  return Date.now()+Math.random().toString(16).slice(2);
+}
+
+
+/* ==============================
+   DAY TABS
+============================== */
+
+function changeDay(day){
+
+  currentDay=day;
+
+  document.getElementById("tab9")
+    .classList.toggle("active",day==="9");
+
+  document.getElementById("tab10")
+    .classList.toggle("active",day==="10");
+
+  renderSchedules();
+}
+
+
+/* ==============================
+   SCHEDULE
+============================== */
+
+function openScheduleModal(item=null){
+
+  editingScheduleId=item ? item.id : null;
+
+  document.getElementById("scheduleModalTitle").textContent=
+    item ? "일정 수정" : "일정 추가";
+
+  document.getElementById("scheduleDate").value=
+    item
+      ? item.date
+      : currentDay==="9"
+        ? "10월 9일"
+        : "10월 10일";
+
+  document.getElementById("scheduleTime").value=
+    item ? normalizeTime(item.time) : "";
+
+  document.getElementById("schedulePlace").value=
+    item ? item.place : "";
+
+  document.getElementById("scheduleName").value=
+    item ? item.schedule : "";
+
+  document.getElementById("scheduleNote").value=
+    item ? item.note : "";
+
+  showModal("scheduleModal");
+}
+
+
+function saveSchedule(){
+
+  const date=document.getElementById("scheduleDate").value;
+  const time=document.getElementById("scheduleTime").value;
+  const place=document.getElementById("schedulePlace").value.trim();
+  const schedule=document.getElementById("scheduleName").value.trim();
+  const note=document.getElementById("scheduleNote").value.trim();
+
+  if(!schedule){
+    toast("일정 내용을 입력해주세요.");
+    return;
+  }
+
+  if(editingScheduleId){
+
+    const i=data.schedules.findIndex(x=>x.id===editingScheduleId);
+
+    if(i>=0){
+      data.schedules[i]={
+        ...data.schedules[i],
+        date,time,place,schedule,note
+      };
+    }
+
+  }else{
+
+    data.schedules.push({
+      id:uid(),
+      date,time,place,schedule,note
+    });
+
+  }
+
+  persist();
+
+  currentDay=date==="10월 9일" ? "9" : "10";
+
+  changeDay(currentDay);
+
+  closeModal("scheduleModal");
+
+  editingScheduleId=null;
+
+  toast("일정을 저장했어요.");
+}
+
+
+function renderSchedules(){
+
+  const date=
+    currentDay==="9"
+      ? "10월 9일"
+      : "10월 10일";
+
+  const items=data.schedules
+    .filter(x=>normalizeDate(x.date)===date)
+    .sort((a,b)=>timeMinutes(a.time)-timeMinutes(b.time));
+
+  document.getElementById("currentDayLabel").textContent=
+    currentDay==="9" ? "DAY 01" : "DAY 02";
+
+  document.getElementById("currentDayTitle").textContent=date;
+
+  document.getElementById("currentCount").textContent=items.length;
+
+  document.getElementById("totalCount").textContent=data.schedules.length;
+
+  const el=document.getElementById("timeline");
+
+  if(!items.length){
+
+    el.innerHTML=`
+      <div class="empty">
+        ${date}에 등록된 일정이 없어요.<br>
+        일정을 추가해보세요.
+      </div>
+    `;
+
+    return;
+  }
+
+  el.innerHTML=items.map(item=>`
+
+    <div class="schedule-item">
+
+      <div class="time">
+        ${escapeHTML(item.time||"--:--")}
+      </div>
+
+      <div class="event">
+
+        <div class="event-top">
+
+          <div>
+
+            <h3 class="event-title">
+              ${escapeHTML(item.schedule)}
+            </h3>
+
+            ${
+              item.place
+              ?
+              `<button
+                class="place"
+                onclick='openMapSearch(${JSON.stringify(item.place)})'
+              >
+                📍 ${escapeHTML(item.place)}
+              </button>`
+              :""
+            }
+
+          </div>
+
+          <div class="item-actions">
+
+            <button
+              class="icon-btn"
+              onclick='editSchedule(${JSON.stringify(item.id)})'
+            >
+              ✎
+            </button>
+
+            <button
+              class="icon-btn"
+              onclick='deleteSchedule(${JSON.stringify(item.id)})'
+            >
+              ×
+            </button>
+
+          </div>
+
+        </div>
+
+        ${
+          item.note
+          ? `<div class="note">${escapeHTML(item.note)}</div>`
+          : ""
+        }
+
+      </div>
+
+    </div>
+
+  `).join("");
+}
+
+
+function editSchedule(id){
+
+  const item=data.schedules.find(x=>x.id===id);
+
+  if(item) openScheduleModal(item);
+}
+
+
+function deleteSchedule(id){
+
+  if(!confirm("이 일정을 삭제할까요?")) return;
+
+  data.schedules=data.schedules.filter(x=>x.id!==id);
+
+  persist();
+  renderSchedules();
+}
+
+
+/* ==============================
+   BUS
+============================== */
+
+function openBusModal(){
+
+  const b=data.bus;
+
+  document.getElementById("busNameInput").value=b.name||"";
+  document.getElementById("busFromInput").value=b.from||"";
+  document.getElementById("busToInput").value=b.to||"";
+  document.getElementById("busDepartureInput").value=b.departure||"";
+  document.getElementById("busArrivalInput").value=b.arrival||"";
+  document.getElementById("busNoteInput").value=b.note||"";
+
+  showModal("busModal");
+}
+
+
+function saveBus(){
+
+  data.bus={
+    name:document.getElementById("busNameInput").value.trim(),
+    from:document.getElementById("busFromInput").value.trim(),
+    to:document.getElementById("busToInput").value.trim(),
+    departure:document.getElementById("busDepartureInput").value,
+    arrival:document.getElementById("busArrivalInput").value,
+    note:document.getElementById("busNoteInput").value.trim()
+  };
+
+  persist();
+  renderBus();
+
+  closeModal("busModal");
+
+  toast("버스 정보를 저장했어요.");
+}
+
+
+function renderBus(){
+
+  const b=data.bus;
+
+  document.getElementById("busName").textContent=
+    b.name||"버스 정보를 등록해주세요";
+
+  document.getElementById("busFrom").textContent=
+    b.from||"-";
+
+  document.getElementById("busTo").textContent=
+    b.to||"-";
+
+  document.getElementById("busDeparture").textContent=
+    "출발 "+(b.departure||"-");
+
+  document.getElementById("busArrival").textContent=
+    "도착 "+(b.arrival||"-");
+
+  document.getElementById("busNote").textContent=
+    b.note||"메모 없음";
+}
+
+
+/* ==============================
+   HOTEL
+============================== */
+
+function openHotelModal(){
+
+  const h=data.hotel;
+
+  document.getElementById("hotelNameInput").value=h.name||"";
+  document.getElementById("hotelAddressInput").value=h.address||"";
+  document.getElementById("checkinInput").value=h.checkin||"";
+  document.getElementById("checkoutInput").value=h.checkout||"";
+  document.getElementById("hotelNoteInput").value=h.note||"";
+
+  showModal("hotelModal");
+}
+
+
+function saveHotel(){
+
+  data.hotel={
+    name:document.getElementById("hotelNameInput").value.trim(),
+    address:document.getElementById("hotelAddressInput").value.trim(),
+    checkin:document.getElementById("checkinInput").value,
+    checkout:document.getElementById("checkoutInput").value,
+    note:document.getElementById("hotelNoteInput").value.trim()
+  };
+
+  persist();
+  renderHotel();
+
+  closeModal("hotelModal");
+
+  toast("숙소 정보를 저장했어요.");
+}
+
+
+function renderHotel(){
+
+  const h=data.hotel;
+
+  document.getElementById("hotelName").textContent=
+    h.name||"숙소를 등록해주세요";
+
+  document.getElementById("hotelAddress").textContent=
+    h.address||"숙소 주소를 입력해주세요.";
+
+  document.getElementById("checkinText").textContent=
+    "체크인 "+(h.checkin||"-");
+
+  document.getElementById("checkoutText").textContent=
+    "체크아웃 "+(h.checkout||"-");
+
+  document.getElementById("hotelNote").textContent=
+    h.note||"메모 없음";
+}
+
+
+function openHotelMap(){
+
+  const q=data.hotel.address||data.hotel.name;
+
+  if(!q){
+    toast("숙소 정보를 먼저 입력해주세요.");
+    return;
+  }
+
+  openMapSearch(q);
+}
+
+
+/* ==============================
+   SAVED PLACES
+============================== */
+
+function openPlaceModal(){
+
+  document.getElementById("placeCategory").value="식당";
+  document.getElementById("placeNameInput").value="";
+  document.getElementById("placeUrlInput").value="";
+
+  showModal("placeModal");
+}
+
+
+function savePlace(){
+
+  const category=document.getElementById("placeCategory").value;
+  const name=document.getElementById("placeNameInput").value.trim();
+  let url=document.getElementById("placeUrlInput").value.trim();
+
+  if(!name){
+    toast("장소 이름을 입력해주세요.");
+    return;
+  }
+
+  if(url && !/^https?:\/\//i.test(url)){
+    url="https://"+url;
+  }
+
+  data.places.push({
+    id:uid(),
+    category,
+    name,
+    url
+  });
+
+  persist();
+  renderPlaces();
+
+  closeModal("placeModal");
+
+  toast("장소를 저장했어요.");
+}
+
+
+function setPlaceFilter(filter,button){
+
+  placeFilter=filter;
+
+  document.querySelectorAll(".filter-btn")
+    .forEach(x=>x.classList.remove("active"));
+
+  button.classList.add("active");
+
+  renderPlaces();
+}
+
+
+function renderPlaces(){
+
+  document.getElementById("placeCount").textContent=data.places.length;
+
+  const list=
+    placeFilter==="전체"
+      ? data.places
+      : data.places.filter(x=>x.category===placeFilter);
+
+  const el=document.getElementById("savedPlaces");
+
+  if(!list.length){
+
+    el.innerHTML=`
+      <div class="card empty" style="grid-column:1/-1">
+        아직 저장된 장소가 없어요.<br>
+        맛집이나 카페, 가보고 싶은 곳을 추가해보세요.
+      </div>
+    `;
+
+    return;
+  }
+
+  el.innerHTML=list.map(p=>{
+
+    const cls=
+      p.category==="카페"
+        ? "cat-cafe"
+        : p.category==="식당"
+          ? "cat-food"
+          : "cat-spot";
+
+    const icon=
+      p.category==="카페"
+        ? "☕"
+        : p.category==="식당"
+          ? "🍽"
+          : "🌊";
+
+    return `
+
+      <div class="saved-place card">
+
+        <button
+          class="saved-delete"
+          onclick='deletePlace(${JSON.stringify(p.id)})'
+        >
+          ×
+        </button>
+
+        <div class="saved-category ${cls}">
+          ${icon} ${escapeHTML(p.category)}
+        </div>
+
+        <div class="saved-name">
+          ${escapeHTML(p.name)}
+        </div>
+
+        <div class="saved-actions">
+
+          ${
+            p.url
+            ?
+            `<button
+              class="btn btn-primary"
+              onclick='openSavedUrl(${JSON.stringify(p.url)})'
+            >
+              📍 장소 보기
+            </button>`
+            :
+            `<button
+              class="btn btn-light"
+              onclick='openMapSearch(${JSON.stringify(p.name)})'
+            >
+              지도 검색
+            </button>`
+          }
+
+        </div>
+
+      </div>
+
+    `;
+
+  }).join("");
+}
+
+
+function deletePlace(id){
+
+  if(!confirm("저장한 장소를 삭제할까요?")) return;
+
+  data.places=data.places.filter(x=>x.id!==id);
+
+  persist();
+  renderPlaces();
+}
+
+
+function openSavedUrl(url){
+
+  if(!url) return;
+
+  window.open(url,"_blank","noopener,noreferrer");
+}
+
+
+/* ==============================
+   EXPENSE
+============================== */
+
+function openExpenseModal(){
+
+  document.getElementById("expenseName").value="";
+  document.getElementById("expensePrice").value="";
+  document.getElementById("expensePayer").value="";
+
+  showModal("expenseModal");
+}
+
+
+function saveExpense(){
+
+  const name=document.getElementById("expenseName").value.trim();
+  const price=Number(document.getElementById("expensePrice").value);
+  const payer=document.getElementById("expensePayer").value.trim();
+
+  if(!name){
+    toast("비용 항목을 입력해주세요.");
+    return;
+  }
+
+  if(!Number.isFinite(price)||price<0){
+    toast("올바른 금액을 입력해주세요.");
+    return;
+  }
+
+  data.expenses.push({
+    id:uid(),
+    name,
+    price,
+    payer
+  });
+
+  persist();
+  renderExpenses();
+
+  closeModal("expenseModal");
+}
+
+
+function deleteExpense(id){
+
+  data.expenses=data.expenses.filter(x=>x.id!==id);
+
+  persist();
+  renderExpenses();
+}
+
+
+function updatePeople(){
+
+  let n=Number(document.getElementById("peopleCount").value);
+
+  if(!Number.isFinite(n)||n<1) n=1;
+
+  data.people=Math.floor(n);
+
+  persist();
+  renderExpenses();
+}
+
+
+function renderExpenses(){
+
+  const el=document.getElementById("expenseList");
+
+  if(!data.expenses.length){
+
+    el.innerHTML=`
+      <div class="empty">
+        아직 등록된 비용이 없어요.
+      </div>
+    `;
+
+  }else{
+
+    el.innerHTML=data.expenses.map(x=>`
+
+      <div class="expense-item">
+
+        <div>
+          <div class="expense-name">
+            ${escapeHTML(x.name)}
+          </div>
+
+          <div class="expense-meta">
+            ${x.payer ? escapeHTML(x.payer)+" 결제" : "결제자 미입력"}
+          </div>
+        </div>
+
+        <div class="expense-price">
+          ${formatWon(x.price)}
+        </div>
+
+        <button
+          class="icon-btn"
+          onclick='deleteExpense(${JSON.stringify(x.id)})'
+        >
+          ×
+        </button>
+
+      </div>
+
+    `).join("");
+  }
+
+  const total=data.expenses.reduce(
+    (sum,x)=>sum+Number(x.price||0),
+    0
+  );
+
+  const people=Math.max(1,Number(data.people||1));
+
+  document.getElementById("peopleCount").value=people;
+  document.getElementById("moneyTotal").textContent=formatWon(total);
+  document.getElementById("perPerson").textContent=
+    formatWon(Math.round(total/people));
+}
+
+
+function formatWon(v){
+  return Number(v||0).toLocaleString("ko-KR")+"원";
+}
+
+
+/* ==============================
+   CHECKLIST
+============================== */
+
+function renderChecklist(){
+
+  const el=document.getElementById("checkList");
+
+  el.innerHTML=data.checklist.map(x=>`
+
+    <div class="check-item ${x.done?"done":""}">
+
+      <input
+        type="checkbox"
+        ${x.done?"checked":""}
+        onchange='toggleCheck(${JSON.stringify(x.id)})'
+      >
+
+      <span class="check-text">
+        ${escapeHTML(x.text)}
+      </span>
+
+      <button
+        class="check-delete"
+        onclick='deleteCheck(${JSON.stringify(x.id)})'
+      >
+        ×
+      </button>
+
+    </div>
+
+  `).join("");
+
+  const done=data.checklist.filter(x=>x.done).length;
+  const total=data.checklist.length;
+
+  document.getElementById("progressBar").style.width=
+    (total ? done/total*100 : 0)+"%";
+
+  document.getElementById("progressText").textContent=
+    done+" / "+total;
+}
+
+
+function addChecklist(){
+
+  const input=document.getElementById("newCheckInput");
+  const text=input.value.trim();
+
+  if(!text) return;
+
+  data.checklist.push({
+    id:uid(),
+    text,
+    done:false
+  });
+
+  input.value="";
+
+  persist();
+  renderChecklist();
+}
+
+
+function toggleCheck(id){
+
+  const x=data.checklist.find(x=>x.id===id);
+
+  if(x) x.done=!x.done;
+
+  persist();
+  renderChecklist();
+}
+
+
+function deleteCheck(id){
+
+  data.checklist=data.checklist.filter(x=>x.id!==id);
+
+  persist();
+  renderChecklist();
+}
+
+
+/* ==============================
+   EXCEL
+============================== */
+
+document.getElementById("fileInput")
+.addEventListener("change",handleFile);
+
+
+async function handleFile(e){
+
+  const file=e.target.files[0];
+
+  if(!file) return;
+
+  try{
+
+    const ext=file.name.split(".").pop().toLowerCase();
+
+    let rows=[];
+
+    if(ext==="csv"){
+
+      rows=parseCSV(await file.text());
+
+    }else{
+
+      if(typeof XLSX==="undefined"){
+        throw new Error("엑셀 라이브러리를 불러오지 못했습니다.");
+      }
+
+      const buffer=await file.arrayBuffer();
+
+      const workbook=XLSX.read(buffer,{
+        type:"array",
+        cellDates:true
+      });
+
+      const sheet=workbook.Sheets[workbook.SheetNames[0]];
+
+      rows=XLSX.utils.sheet_to_json(sheet,{
+        defval:"",
+        raw:false
+      });
+
+    }
+
+    importRows(rows);
+
+  }catch(err){
+
+    alert("파일을 불러오지 못했습니다.\n"+err.message);
+
+  }
+
+  e.target.value="";
+}
+
+
+function importRows(rows){
+
+  const imported=[];
+
+  rows.forEach(row=>{
+
+    const r=normalizeKeys(row);
+
+    const date=normalizeDate(r["날짜"]);
+
+    if(date!=="10월 9일" && date!=="10월 10일") return;
+
+    const schedule=String(r["일정"]??"").trim();
+
+    if(!schedule) return;
+
+    imported.push({
+      id:uid(),
+      date,
+      time:normalizeTime(r["시간"]),
+      place:String(r["장소"]??"").trim(),
+      schedule,
+      note:String(r["비고"]??"").trim()
+    });
+
+  });
+
+  if(!imported.length){
+
+    alert(
+      "불러올 일정이 없습니다.\n\n"+
+      "첫 행을 날짜, 시간, 장소, 일정, 비고로 작성해주세요."
+    );
+
+    return;
+  }
+
+  let replace=false;
+
+  if(data.schedules.length){
+
+    replace=confirm(
+      imported.length+"개의 일정을 찾았습니다.\n\n"+
+      "확인 = 기존 일정 교체\n"+
+      "취소 = 기존 일정에 추가"
+    );
+
+  }
+
+  data.schedules=
+    replace
+      ? imported
+      : [...data.schedules,...imported];
+
+  persist();
+  renderSchedules();
+
+  toast(imported.length+"개 일정을 불러왔어요.");
+}
+
+
+function parseCSV(text){
+
+  text=text.replace(/^\uFEFF/,"");
+
+  const table=[];
+  let row=[];
+  let value="";
+  let quote=false;
+
+  for(let i=0;i<text.length;i++){
+
+    const c=text[i];
+    const next=text[i+1];
+
+    if(c==='"' && quote && next==='"'){
+      value+='"';
+      i++;
+      continue;
+    }
+
+    if(c==='"'){
+      quote=!quote;
+      continue;
+    }
+
+    if(c==="," && !quote){
+      row.push(value);
+      value="";
+      continue;
+    }
+
+    if((c==="\n"||c==="\r")&&!quote){
+
+      if(c==="\r"&&next==="\n") i++;
+
+      row.push(value);
+
+      if(row.some(x=>x.trim()!=="")){
+        table.push(row);
+      }
+
+      row=[];
+      value="";
+      continue;
+    }
+
+    value+=c;
+  }
+
+  row.push(value);
+
+  if(row.some(x=>x.trim()!=="")){
+    table.push(row);
+  }
+
+  if(!table.length) return [];
+
+  const headers=table[0].map(x=>x.trim());
+
+  return table.slice(1).map(cells=>{
+
+    const obj={};
+
+    headers.forEach((h,i)=>{
+      obj[h]=cells[i]!==undefined ? cells[i].trim() : "";
+    });
+
+    return obj;
+  });
+}
+
+
+/* ==============================
+   UTIL
+============================== */
+
+function normalizeKeys(row){
+
+  const out={};
+
+  Object.keys(row).forEach(k=>{
+    out[String(k).replace(/^\uFEFF/,"").trim()]=row[k];
+  });
+
+  return out;
+}
+
+
+function normalizeDate(v){
+
+  if(v===null||v===undefined) return "";
+
+  const t=String(v).trim();
+
+  if(
+    /10\s*월\s*0?9\s*일/.test(t) ||
+    /(?:^|[-/.])10[-/.]0?9(?:$|\s)/.test(t) ||
+    /^10[-/.]0?9$/.test(t)
+  ){
+    return "10월 9일";
+  }
+
+  if(
+    /10\s*월\s*10\s*일/.test(t) ||
+    /(?:^|[-/.])10[-/.]10(?:$|\s)/.test(t) ||
+    /^10[-/.]10$/.test(t)
+  ){
+    return "10월 10일";
+  }
+
+  return t;
+}
+
+
+function normalizeTime(v){
+
+  if(v===null||v===undefined) return "";
+
+  const t=String(v).trim();
+
+  if(!t) return "";
+
+  let m=t.match(/^(\d{1,2}):(\d{1,2})(?::\d{1,2})?$/);
+
+  if(m){
+    return String(Number(m[1])).padStart(2,"0")
+      +":"+
+      String(Number(m[2])).padStart(2,"0");
+  }
+
+  m=t.match(/(오전|오후)\s*(\d{1,2})(?::(\d{1,2}))?/);
+
+  if(m){
+
+    let h=Number(m[2]);
+    const min=Number(m[3]||0);
+
+    if(m[1]==="오후"&&h<12) h+=12;
+    if(m[1]==="오전"&&h===12) h=0;
+
+    return String(h).padStart(2,"0")
+      +":"+
+      String(min).padStart(2,"0");
+  }
+
+  return t;
+}
+
+
+function timeMinutes(v){
+
+  const t=normalizeTime(v);
+
+  if(!t) return 9999;
+
+  const parts=t.split(":").map(Number);
+
+  return parts[0]*60+parts[1];
+}
+
+
+function openMapSearch(query){
+
+  if(!query) return;
+
+  window.open(
+    "https://map.kakao.com/?q="+encodeURIComponent(query),
+    "_blank",
+    "noopener,noreferrer"
+  );
+}
+
+
+function showModal(id){
+  document.getElementById(id).classList.add("show");
+}
+
+
+function closeModal(id){
+  document.getElementById(id).classList.remove("show");
+}
+
+
+document.querySelectorAll(".modal-bg").forEach(modal=>{
+
+  modal.addEventListener("click",e=>{
+
+    if(e.target===modal){
+      modal.classList.remove("show");
+    }
+
+  });
+
+});
+
+
+document.addEventListener("keydown",e=>{
+
+  if(e.key==="Escape"){
+
+    document.querySelectorAll(".modal-bg.show")
+      .forEach(x=>x.classList.remove("show"));
+
+  }
+
+});
+
+
+function escapeHTML(v){
+
+  return String(v??"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+
+let toastTimer;
+
+function toast(msg){
+
+  const el=document.getElementById("toast");
+
+  el.textContent=msg;
+  el.classList.add("show");
+
+  clearTimeout(toastTimer);
+
+  toastTimer=setTimeout(()=>{
+    el.classList.remove("show");
+  },2100);
+}
+
+
+/* INITIAL */
+
+function renderAll(){
+  renderSchedules();
+  renderBus();
+  renderHotel();
+  renderPlaces();
+  renderExpenses();
+  renderChecklist();
+}
+
+renderAll();
+
+</script>
+
+</body>
+</html>
