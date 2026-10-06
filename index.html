@@ -1245,18 +1245,20 @@ label{
 
     <!-- BUS -->
 
+       <!-- 가는 버스 -->
+
     <div class="info-card card">
 
       <div class="info-card-head">
 
         <div class="info-card-title">
           <div class="info-icon">🚌</div>
-          버스
+          가는 버스
         </div>
 
         <button
           class="btn btn-light"
-          onclick="openBusModal()"
+          onclick="openBusModal('outbound')"
         >
           ✎ 수정
         </button>
@@ -1265,41 +1267,94 @@ label{
 
       <div class="info-body">
 
-        <div class="main-info" id="busName">
-          버스 정보를 등록해주세요
+        <div class="main-info" id="outboundBusName">
+          가는 버스 정보를 등록해주세요
         </div>
 
         <div class="bus-route">
 
           <div class="bus-point">
             <small>출발</small>
-            <strong id="busFrom">-</strong>
+            <strong id="outboundBusFrom">-</strong>
           </div>
 
           <div class="bus-arrow">→</div>
 
           <div class="bus-point">
             <small>도착</small>
-            <strong id="busTo">-</strong>
+            <strong id="outboundBusTo">-</strong>
           </div>
 
         </div>
 
         <div class="chips">
-
-          <span class="chip" id="busDeparture">
-            출발 -
-          </span>
-
-          <span class="chip" id="busArrival">
-            도착 -
-          </span>
-
+          <span class="chip" id="outboundBusDeparture">출발 -</span>
+          <span class="chip" id="outboundBusArrival">도착 -</span>
         </div>
 
         <div
           class="sub-info"
-          id="busNote"
+          id="outboundBusNote"
+          style="margin-top:13px"
+        >
+          메모 없음
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- 오는 버스 -->
+
+    <div class="info-card card">
+
+      <div class="info-card-head">
+
+        <div class="info-card-title">
+          <div class="info-icon">🚌</div>
+          오는 버스
+        </div>
+
+        <button
+          class="btn btn-light"
+          onclick="openBusModal('inbound')"
+        >
+          ✎ 수정
+        </button>
+
+      </div>
+
+      <div class="info-body">
+
+        <div class="main-info" id="inboundBusName">
+          오는 버스 정보를 등록해주세요
+        </div>
+
+        <div class="bus-route">
+
+          <div class="bus-point">
+            <small>출발</small>
+            <strong id="inboundBusFrom">-</strong>
+          </div>
+
+          <div class="bus-arrow">→</div>
+
+          <div class="bus-point">
+            <small>도착</small>
+            <strong id="inboundBusTo">-</strong>
+          </div>
+
+        </div>
+
+        <div class="chips">
+          <span class="chip" id="inboundBusDeparture">출발 -</span>
+          <span class="chip" id="inboundBusArrival">도착 -</span>
+        </div>
+
+        <div
+          class="sub-info"
+          id="inboundBusNote"
           style="margin-top:13px"
         >
           메모 없음
@@ -1835,12 +1890,14 @@ const auth = firebase.auth();
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 /* STORAGE */
 
+  
 const KEY="gangwon_trip_v3";
 
 const defaultData={
   schedules:[],
 
-  bus:{
+ bus:{
+  outbound:{
     name:"",
     from:"",
     to:"",
@@ -1848,6 +1905,15 @@ const defaultData={
     arrival:"",
     note:""
   },
+  inbound:{
+    name:"",
+    from:"",
+    to:"",
+    departure:"",
+    arrival:"",
+    note:""
+  }
+},
 
   hotel:{
     name:"",
@@ -1895,10 +1961,15 @@ function loadData(){
         ...p,
 
         bus:{
-          ...defaultData.bus,
-          ...(p.bus||{})
-        },
-
+  outbound:{
+    ...defaultData.bus.outbound,
+    ...(p.bus?.outbound || {})
+  },
+  inbound:{
+    ...defaultData.bus.inbound,
+    ...(p.bus?.inbound || {})
+  }
+},
         hotel:{
           ...defaultData.hotel,
           ...(p.hotel||{})
@@ -2166,16 +2237,21 @@ function deleteSchedule(id){
    BUS
 ============================== */
 
-function openBusModal(){
+let editingBusType = "outbound";
 
-  const b=data.bus;
 
-  document.getElementById("busNameInput").value=b.name||"";
-  document.getElementById("busFromInput").value=b.from||"";
-  document.getElementById("busToInput").value=b.to||"";
-  document.getElementById("busDepartureInput").value=b.departure||"";
-  document.getElementById("busArrivalInput").value=b.arrival||"";
-  document.getElementById("busNoteInput").value=b.note||"";
+function openBusModal(type){
+
+  editingBusType = type;
+
+  const b = data.bus[type];
+
+  document.getElementById("busNameInput").value = b.name || "";
+  document.getElementById("busFromInput").value = b.from || "";
+  document.getElementById("busToInput").value = b.to || "";
+  document.getElementById("busDepartureInput").value = b.departure || "";
+  document.getElementById("busArrivalInput").value = b.arrival || "";
+  document.getElementById("busNoteInput").value = b.note || "";
 
   showModal("busModal");
 }
@@ -2183,7 +2259,7 @@ function openBusModal(){
 
 function saveBus(){
 
-  data.bus={
+  data.bus[editingBusType] = {
     name:document.getElementById("busNameInput").value.trim(),
     from:document.getElementById("busFromInput").value.trim(),
     to:document.getElementById("busToInput").value.trim(),
@@ -2197,33 +2273,56 @@ function saveBus(){
 
   closeModal("busModal");
 
-  toast("버스 정보를 저장했어요.");
+  toast(
+    editingBusType === "outbound"
+      ? "가는 버스 정보를 저장했어요."
+      : "오는 버스 정보를 저장했어요."
+  );
 }
 
 
 function renderBus(){
 
-  const b=data.bus;
+  const outbound = data.bus.outbound || {};
+  const inbound = data.bus.inbound || {};
 
-  document.getElementById("busName").textContent=
-    b.name||"버스 정보를 등록해주세요";
+  document.getElementById("outboundBusName").textContent =
+    outbound.name || "가는 버스 정보를 등록해주세요";
 
-  document.getElementById("busFrom").textContent=
-    b.from||"-";
+  document.getElementById("outboundBusFrom").textContent =
+    outbound.from || "-";
 
-  document.getElementById("busTo").textContent=
-    b.to||"-";
+  document.getElementById("outboundBusTo").textContent =
+    outbound.to || "-";
 
-  document.getElementById("busDeparture").textContent=
-    "출발 "+(b.departure||"-");
+  document.getElementById("outboundBusDeparture").textContent =
+    "출발 " + (outbound.departure || "-");
 
-  document.getElementById("busArrival").textContent=
-    "도착 "+(b.arrival||"-");
+  document.getElementById("outboundBusArrival").textContent =
+    "도착 " + (outbound.arrival || "-");
 
-  document.getElementById("busNote").textContent=
-    b.note||"메모 없음";
+  document.getElementById("outboundBusNote").textContent =
+    outbound.note || "메모 없음";
+
+
+  document.getElementById("inboundBusName").textContent =
+    inbound.name || "오는 버스 정보를 등록해주세요";
+
+  document.getElementById("inboundBusFrom").textContent =
+    inbound.from || "-";
+
+  document.getElementById("inboundBusTo").textContent =
+    inbound.to || "-";
+
+  document.getElementById("inboundBusDeparture").textContent =
+    "출발 " + (inbound.departure || "-");
+
+  document.getElementById("inboundBusArrival").textContent =
+    "도착 " + (inbound.arrival || "-");
+
+  document.getElementById("inboundBusNote").textContent =
+    inbound.note || "메모 없음";
 }
-
 
 /* ==============================
    HOTEL
@@ -3113,10 +3212,16 @@ function startRealtimeSync(){
             ...defaultData,
             ...remote.data,
 
-            bus:{
-              ...defaultData.bus,
-              ...(remote.data.bus || {})
-            },
+           bus:{
+  outbound:{
+    ...defaultData.bus.outbound,
+    ...(remote.data.bus?.outbound || {})
+  },
+  inbound:{
+    ...defaultData.bus.inbound,
+    ...(remote.data.bus?.inbound || {})
+  }
+},
 
             hotel:{
               ...defaultData.hotel,
