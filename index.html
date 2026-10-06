@@ -1013,7 +1013,63 @@ label{
 </head>
 
 <body>
+<!-- 공동편집 로그인 -->
+<div id="authBar" style="
+  position:sticky;
+  top:0;
+  z-index:999;
+  background:#123b5b;
+  color:white;
+  padding:10px 15px;
+  font-size:12px;
+">
+  <div style="
+    max-width:1080px;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  ">
+    <div>
+      <strong id="authStatus">Firebase 연결 중...</strong>
+      <span id="userName" style="margin-left:7px;opacity:.8"></span>
+    </div>
 
+    <button
+      id="loginButton"
+      onclick="googleLogin()"
+      style="
+        border:0;
+        border-radius:8px;
+        padding:8px 12px;
+        background:white;
+        color:#123b5b;
+        font-weight:800;
+        cursor:pointer;
+      "
+    >
+      Google 로그인
+    </button>
+
+    <button
+      id="logoutButton"
+      onclick="googleLogout()"
+      style="
+        display:none;
+        border:1px solid rgba(255,255,255,.3);
+        border-radius:8px;
+        padding:8px 12px;
+        background:transparent;
+        color:white;
+        font-weight:800;
+        cursor:pointer;
+      "
+    >
+      로그아웃
+    </button>
+  </div>
+</div>
 <header class="hero">
   <div class="container">
     <div class="hero-card">
@@ -1755,9 +1811,26 @@ label{
 
 <div class="toast" id="toast"></div>
 
-
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  
 <script>
+/* FIREBASE */
 
+const firebaseConfig = {
+  apiKey: "AIzaSyASx2OA8SSzwwHzxCrPp9XmlEKkMf50Q24",
+  authDomain: "ttrr-b2255.firebaseapp.com",
+  projectId: "ttrr-b2255",
+  storageBucket: "ttrr-b2255.firebasestorage.app",
+  messagingSenderId: "529949761375",
+  appId: "1:529949761375:web:bd65e9cd5e5098845c20ea"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
 /* STORAGE */
 
 const KEY="gangwon_trip_v3";
@@ -1838,8 +1911,24 @@ function loadData(){
 }
 
 
-function persist(){
-  localStorage.setItem(KEY,JSON.stringify(data));
+async function persist(){
+
+  // 내 브라우저에도 임시 저장
+  localStorage.setItem(KEY, JSON.stringify(data));
+
+  // 로그인되어 있으면 Firebase에도 공동 저장
+  if(auth.currentUser){
+    try{
+      await db.collection("trips").doc("gangwon-trip").set({
+        data: data,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedBy: auth.currentUser.email || ""
+      });
+    }catch(error){
+      console.error("Firebase 저장 오류:", error);
+      toast("공동 저장에 실패했어요.");
+    }
+  }
 }
 
 
@@ -2950,7 +3039,103 @@ function renderAll(){
 }
 
 renderAll();
+/* ==============================
+   FIREBASE LOGIN + REALTIME SYNC
+============================== */
 
+async function googleLogin(){
+  try{
+    await auth.signInWithPopup(googleProvider);
+  }catch(error){
+    console.error("로그인 오류:", error);
+    alert("Google 로그인에 실패했습니다.\n" + error.message);
+  }
+}
+
+async function googleLogout(){
+  try{
+    await auth.signOut();
+  }catch(error){
+    console.error("로그아웃 오류:", error);
+  }
+}
+
+auth.onAuthStateChanged(user => {
+
+  const status = document.getElementById("authStatus");
+  const userName = document.getElementById("userName");
+  const loginButton = document.getElementById("loginButton");
+  const logoutButton = document.getElementById("logoutButton");
+
+  if(user){
+
+    status.textContent = "공동편집 연결됨";
+    userName.textContent = user.displayName || user.email || "";
+
+    loginButton.style.display = "none";
+    logoutButton.style.display = "block";
+
+    startRealtimeSync();
+
+  }else{
+
+    status.textContent = "공동편집을 하려면 로그인하세요";
+    userName.textContent = "";
+
+    loginButton.style.display = "block";
+    logoutButton.style.display = "none";
+  }
+});
+
+
+let unsubscribeTrip = null;
+
+function startRealtimeSync(){
+
+  if(unsubscribeTrip){
+    unsubscribeTrip();
+  }
+
+  unsubscribeTrip = db
+    .collection("trips")
+    .doc("gangwon-trip")
+    .onSnapshot(snapshot => {
+
+      if(snapshot.exists){
+
+        const remote = snapshot.data();
+
+        if(remote.data){
+
+          data = {
+            ...defaultData,
+            ...remote.data,
+
+            bus:{
+              ...defaultData.bus,
+              ...(remote.data.bus || {})
+            },
+
+            hotel:{
+              ...defaultData.hotel,
+              ...(remote.data.hotel || {})
+            }
+          };
+
+          localStorage.setItem(KEY, JSON.stringify(data));
+
+          renderAll();
+        }
+
+      }
+
+    }, error => {
+
+      console.error("실시간 동기화 오류:", error);
+      toast("공동편집 연결에 실패했어요.");
+
+    });
+}
 </script>
 
 </body>
