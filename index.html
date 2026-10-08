@@ -738,85 +738,6 @@ h1{
   font-size:20px;
 }
 
-/* CHECKLIST */
-
-.check-card{padding:22px}
-
-.check-progress-wrap{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-bottom:18px;
-}
-
-.progress{
-  flex:1;
-  height:8px;
-  overflow:hidden;
-  border-radius:20px;
-  background:#e9f2f7;
-}
-
-.progress-bar{
-  width:0;
-  height:100%;
-  border-radius:20px;
-  background:linear-gradient(90deg,var(--blue),#69c5ea);
-}
-
-.progress-text{
-  min-width:45px;
-  color:var(--blue);
-  font-size:10px;
-  font-weight:900;
-}
-
-.check-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:8px;
-}
-
-.check-item{
-  display:flex;
-  align-items:center;
-  gap:9px;
-  padding:11px 12px;
-  border:1px solid #e4eff6;
-  border-radius:10px;
-  background:#fbfdff;
-}
-
-.check-item.done .check-text{
-  color:#9eacb5;
-  text-decoration:line-through;
-}
-
-.check-item input{
-  width:17px;
-  height:17px;
-  accent-color:var(--blue);
-}
-
-.check-text{
-  flex:1;
-  font-size:11px;
-  font-weight:750;
-}
-
-.check-delete{
-  color:#a8b5bd;
-  border:0;
-  background:none;
-}
-
-.add-row{
-  display:flex;
-  gap:7px;
-  margin-top:12px;
-}
-
-.add-row input{flex:1}
 
 /* FORMS */
 
@@ -991,10 +912,9 @@ label{
 }
 
 @media(max-width:520px){
-  .saved-grid,
-  .check-grid{
-    grid-template-columns:1fr;
-  }
+.saved-grid{
+  grid-template-columns:1fr;
+}
 
   .schedule-tabs{
     gap:5px;
@@ -1105,7 +1025,7 @@ label{
   <a href="#transport">🚌 교통·숙소</a>
   <a href="#places">📍 저장한 장소</a>
   <a href="#money">💳 비용</a>
-  <a href="#check">🧳 준비물</a>
+<a href="#opinions">💬 의견 게시판</a>
 </nav>
 
 
@@ -1562,7 +1482,7 @@ label{
 
 <!-- 여행 의견 게시판 -->
 
-<section class="section" id="board">
+<section class="section" id="opinions">
 
   <div class="section-heading">
     <div>
@@ -1573,80 +1493,15 @@ label{
       </p>
     </div>
 
-    <button
-      class="btn btn-primary"
-      onclick="openBoardModal()"
-    >
-      ＋ 의견 작성
-    </button>
+<button
+  class="btn btn-primary"
+  onclick="document.getElementById('opinionInput').focus()"
+>
+  ＋ 의견 작성
+</button>
   </div>
 
-  <!-- 카테고리 -->
-
-  <div class="place-filter" id="boardFilters">
-
-    <button class="filter-btn active"
-      onclick="setBoardFilter('전체',this)">
-      전체
-    </button>
-
-    <button class="filter-btn"
-      onclick="setBoardFilter('자유',this)">
-      💬 자유
-    </button>
-
-    <button class="filter-btn"
-      onclick="setBoardFilter('맛집',this)">
-      🍽 맛집
-    </button>
-
-    <button class="filter-btn"
-      onclick="setBoardFilter('카페',this)">
-      ☕ 카페
-    </button>
-
-    <button class="filter-btn"
-      onclick="setBoardFilter('장소',this)">
-      📍 장소
-    </button>
-
-    <button class="filter-btn"
-      onclick="setBoardFilter('질문',this)">
-      ❓ 질문
-    </button>
-
-    <button class="filter-btn"
-      onclick="setBoardFilter('공지',this)">
-      📢 공지
-    </button>
-
-  </div>
-
-  <!-- 정렬 -->
-
-  <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-
-    <select
-      id="boardSort"
-      style="width:140px"
-      onchange="renderBoard()"
-    >
-      <option value="latest">최신순</option>
-      <option value="likes">❤️ 좋아요순</option>
-    </select>
-
-  </div>
-
-  <!-- 게시글 목록 -->
-
-  <div id="boardList">
-
-    <div class="card empty">
-      아직 작성된 의견이 없어요.<br>
-      첫 번째 여행 의견을 남겨보세요! 💙
-    </div>
-
-  </div>
+ 
 
 </section>
   
@@ -1964,16 +1819,7 @@ opinions:[],
 
 expenses:[],
 
-people:4,
-
-  checklist:[
-    {id:"c1",text:"신분증",done:false},
-    {id:"c2",text:"휴대폰 충전기",done:false},
-    {id:"c3",text:"보조배터리",done:false},
-    {id:"c4",text:"세면도구",done:false},
-    {id:"c5",text:"갈아입을 옷",done:false},
-    {id:"c6",text:"우산",done:false}
-  ]
+people:4
 };
 
 let data=loadData();
@@ -2726,88 +2572,7 @@ function formatWon(v){
 }
 
 
-/* ==============================
-   CHECKLIST
-============================== */
 
-function renderChecklist(){
-
-  const el=document.getElementById("checkList");
-
-  el.innerHTML=data.checklist.map(x=>`
-
-    <div class="check-item ${x.done?"done":""}">
-
-      <input
-        type="checkbox"
-        ${x.done?"checked":""}
-        onchange='toggleCheck(${JSON.stringify(x.id)})'
-      >
-
-      <span class="check-text">
-        ${escapeHTML(x.text)}
-      </span>
-
-      <button
-        class="check-delete"
-        onclick='deleteCheck(${JSON.stringify(x.id)})'
-      >
-        ×
-      </button>
-
-    </div>
-
-  `).join("");
-
-  const done=data.checklist.filter(x=>x.done).length;
-  const total=data.checklist.length;
-
-  document.getElementById("progressBar").style.width=
-    (total ? done/total*100 : 0)+"%";
-
-  document.getElementById("progressText").textContent=
-    done+" / "+total;
-}
-
-
-function addChecklist(){
-
-  const input=document.getElementById("newCheckInput");
-  const text=input.value.trim();
-
-  if(!text) return;
-
-  data.checklist.push({
-    id:uid(),
-    text,
-    done:false
-  });
-
-  input.value="";
-
-  persist();
-  renderChecklist();
-}
-
-
-function toggleCheck(id){
-
-  const x=data.checklist.find(x=>x.id===id);
-
-  if(x) x.done=!x.done;
-
-  persist();
-  renderChecklist();
-}
-
-
-function deleteCheck(id){
-
-  data.checklist=data.checklist.filter(x=>x.id!==id);
-
-  persist();
-  renderChecklist();
-}
 
 
 /* ==============================
@@ -3169,7 +2934,8 @@ function toast(msg){
 ============================== */
 
 let opinionSort = "recent";
-
+let opinionFilter = "전체";
+  
 function renderOpinions(){
 
   if(!Array.isArray(data.opinions)){
@@ -3206,7 +2972,10 @@ function renderOpinions(){
 
   const user = auth.currentUser;
 
-  const opinions = [...data.opinions];
+ const opinions = data.opinions.filter(x =>
+  opinionFilter === "전체" ||
+  x.category === opinionFilter
+);
 
   if(opinionSort === "likes"){
     opinions.sort((a,b) =>
@@ -3217,6 +2986,20 @@ function renderOpinions(){
   }
 
   board.innerHTML = `
+  <div class="place-filter">
+
+  ${["전체","일정","맛집","교통","기타"].map(category => `
+
+    <button
+      class="filter-btn ${opinionFilter === category ? "active" : ""}"
+      onclick="opinionFilter='${category}';renderOpinions()"
+    >
+      ${category}
+    </button>
+
+  `).join("")}
+
+</div>
 
     <div class="card" style="padding:22px;margin-bottom:18px">
 
