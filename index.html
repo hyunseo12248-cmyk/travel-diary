@@ -1932,23 +1932,92 @@ function mergeListById(before=[], after=[], remote=[]){
 
   const oldMap = new Map(before.map(x=>[x.id,x]));
   const newMap = new Map(after.map(x=>[x.id,x]));
-  const merged = new Map(remote.map(x=>[x.id,x]));
+  const merged = new Map(remote.map(x=>[x.id,{...x}]));
 
+  // 삭제한 항목 반영
   for(const id of oldMap.keys()){
     if(!newMap.has(id)){
       merged.delete(id);
     }
   }
 
+  // 추가 및 수정한 항목 반영
   for(const [id,item] of newMap){
+
     const old = oldMap.get(id);
 
-    if(!old || JSON.stringify(old)!==JSON.stringify(item)){
-      merged.set(id,item);
+    if(!old){
+      merged.set(id,{...item});
+      continue;
     }
+
+    const latest = merged.get(id);
+
+    if(!latest){
+      if(JSON.stringify(old)!==JSON.stringify(item)){
+        merged.set(id,{...item});
+      }
+      continue;
+    }
+
+    const result = {...latest};
+
+    const keys = new Set([
+      ...Object.keys(old),
+      ...Object.keys(item)
+    ]);
+
+    for(const key of keys){
+
+      if(
+        JSON.stringify(old[key]) ===
+        JSON.stringify(item[key])
+      ){
+        continue;
+      }
+
+      // 좋아요는 사용자별 변경 사항 병합
+      if(
+        key === "likes" &&
+        Array.isArray(old[key]) &&
+        Array.isArray(item[key])
+      ){
+
+        const previous = new Set(old[key]);
+        const current = new Set(item[key]);
+        const combined = new Set(
+          Array.isArray(latest[key]) ? latest[key] : []
+        );
+
+        for(const uid of previous){
+          if(!current.has(uid)){
+            combined.delete(uid);
+          }
+        }
+
+        for(const uid of current){
+          if(!previous.has(uid)){
+            combined.add(uid);
+          }
+        }
+
+        result[key] = [...combined];
+
+      }else if(
+        Object.prototype.hasOwnProperty.call(item,key)
+      ){
+        result[key] = item[key];
+
+      }else{
+        delete result[key];
+      }
+    }
+
+    merged.set(id,result);
   }
 
   return [...merged.values()];
+}
 }
 function mergeTripData(before, after, remote){
 
@@ -3375,7 +3444,7 @@ auth.onAuthStateChanged(user => {
 
   if(user){
 
-    status.textContent = "공동편집 연결됨";
+   status.textContent = "공동편집 연결 중...";
     userName.textContent = user.displayName || user.email || "";
 
     loginButton.style.display = "none";
@@ -3385,6 +3454,13 @@ auth.onAuthStateChanged(user => {
 
   }else{
 
+    if(unsubscribeTrip){
+      unsubscribeTrip();
+      unsubscribeTrip = null;
+    }
+
+    lastSyncedData = null;
+    
     status.textContent = "공동편집을 하려면 로그인하세요";
     userName.textContent = "";
 
@@ -3405,7 +3481,12 @@ function startRealtimeSync(){
   unsubscribeTrip = db
     .collection("trips")
     .doc("gangwon-trip")
-    .onSnapshot(snapshot => {
+    .onSnapshot({includeMetadataChanges:true}, snapshot => {
+
+  document.getElementById("authStatus").textContent =
+    snapshot.metadata.fromCache
+      ? "서버 연결 확인 중..."
+      : "공동편집 연결됨";
 
       if(snapshot.exists){
 
@@ -3450,6 +3531,8 @@ lastSyncedData = JSON.parse(JSON.stringify(remote.data));
     }, error => {
 
       console.error("실시간 동기화 오류:", error);
+      document.getElementById("authStatus").textContent =
+  "공동편집 연결 실패";
       toast("공동편집 연결에 실패했어요.");
 
     });
