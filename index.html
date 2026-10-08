@@ -1866,28 +1866,147 @@ function loadData(){
   return JSON.parse(JSON.stringify(defaultData));
 }
 
+let lastSyncedData = null;
 
-async function persist(){
+  let saveQueue = Promise.resolve();
 
-  // 내 브라우저에도 임시 저장
-  localStorage.setItem(KEY, JSON.stringify(data));
+function persist(){
 
-  // 로그인되어 있으면 Firebase에도 공동 저장
-  if(auth.currentUser){
+  const before = JSON.parse(
+    JSON.stringify(lastSyncedData || defaultData)
+  );
+
+  const after = JSON.parse(
+    JSON.stringify(data)
+  );
+
+  localStorage.setItem(KEY, JSON.stringify(after));
+
+  const user = auth.currentUser;
+
+  if(!user) return Promise.resolve();
+
+  saveQueue = saveQueue.catch(() => {}).then(async () => {
+
     try{
-      await db.collection("trips").doc("gangwon-trip").set({
-        data: data,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedBy: auth.currentUser.email || ""
+
+      const ref = db.collection("trips").doc("gangwon-trip");
+
+      await db.runTransaction(async transaction => {
+
+        const snapshot = await transaction.get(ref);
+
+        const remote =
+          snapshot.exists && snapshot.data()?.data
+            ? snapshot.data().data
+            : defaultData;
+
+        const merged = mergeTripData(
+          before,
+          after,
+          remote
+        );
+
+        transaction.set(ref, {
+          data: merged,
+          updatedAt:
+            firebase.firestore.FieldValue.serverTimestamp(),
+          updatedBy: user.email || ""
+        });
+
       });
+
     }catch(error){
+
       console.error("Firebase 저장 오류:", error);
+
       toast("공동 저장에 실패했어요.");
+
+    }
+
+  });
+
+  return saveQueue;
+}
+function mergeListById(before=[], after=[], remote=[]){
+
+  const oldMap = new Map(before.map(x=>[x.id,x]));
+  const newMap = new Map(after.map(x=>[x.id,x]));
+  const merged = new Map(remote.map(x=>[x.id,x]));
+
+  for(const id of oldMap.keys()){
+    if(!newMap.has(id)){
+      merged.delete(id);
     }
   }
+
+  for(const [id,item] of newMap){
+    const old = oldMap.get(id);
+
+    if(!old || JSON.stringify(old)!==JSON.stringify(item)){
+      merged.set(id,item);
+    }
+  }
+
+  return [...merged.values()];
 }
+function mergeTripData(before, after, remote){
 
+  const base = before || defaultData;
+  const latest = remote || defaultData;
 
+  const result = {...latest};
+
+  for(const key of [
+    "schedules",
+    "places",
+    "opinions",
+    "expenses"
+  ]){
+    result[key] = mergeListById(
+      base[key] || [],
+      after[key] || [],
+      latest[key] || []
+    );
+  }
+
+  result.bus = {...latest.bus};
+
+  for(const type of ["outbound","inbound"]){
+
+    const oldBus = base.bus?.[type] || {};
+    const newBus = after.bus?.[type] || {};
+
+    result.bus[type] = {...latest.bus?.[type]};
+
+    for(const key of [
+      "name","from","to",
+      "departure","arrival","note"
+    ]){
+      if(newBus[key] !== oldBus[key]){
+        result.bus[type][key] = newBus[key];
+      }
+    }
+  }
+
+  result.hotel = {...latest.hotel};
+
+  for(const key of [
+    "name","address","checkin",
+    "checkout","note"
+  ]){
+    if(after.hotel?.[key] !== base.hotel?.[key]){
+      result.hotel[key] = after.hotel[key];
+    }
+  }
+
+  if(after.people !== base.people){
+    result.people = after.people;
+  }
+
+  return result;
+}
+  
 function uid(){
 
   if(window.crypto && crypto.randomUUID){
@@ -3293,28 +3412,34 @@ function startRealtimeSync(){
         const remote = snapshot.data();
 
         if(remote.data){
+          
+          const incoming = lastSyncedData
+  ? mergeTripData(lastSyncedData, data, remote.data)
+  : remote.data;
 
           data = {
             ...defaultData,
-            ...remote.data,
+       ...incoming,
 
            bus:{
   outbound:{
     ...defaultData.bus.outbound,
-    ...(remote.data.bus?.outbound || {})
+    ...(incoming.bus?.outbound || {})
   },
   inbound:{
     ...defaultData.bus.inbound,
-    ...(remote.data.bus?.inbound || {})
+    ...(incoming.bus?.inbound || {})
   }
 },
 
             hotel:{
               ...defaultData.hotel,
-              ...(remote.data.hotel || {})
+     ...(incoming.hotel || {})
             }
           };
 
+lastSyncedData = JSON.parse(JSON.stringify(remote.data));
+          
           localStorage.setItem(KEY, JSON.stringify(data));
 
           renderAll();
