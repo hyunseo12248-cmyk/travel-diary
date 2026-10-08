@@ -1560,61 +1560,96 @@ label{
 </section>
 
 
-<!-- 준비물 : 맨 아래 -->
+<!-- 여행 의견 게시판 -->
 
-<section class="section" id="check">
+<section class="section" id="board">
 
   <div class="section-heading">
-
     <div>
-      <h2>준비물 체크 🧳</h2>
+      <h2>우리의 여행 이야기 💬</h2>
       <p>
-        출발 전에 마지막으로 확인해요.
+        친구들과 자유롭게 의견을 나누고
+        여행 계획을 완성해요!
       </p>
     </div>
 
+    <button
+      class="btn btn-primary"
+      onclick="openBoardModal()"
+    >
+      ＋ 의견 작성
+    </button>
   </div>
 
+  <!-- 카테고리 -->
 
-  <div class="check-card card">
+  <div class="place-filter" id="boardFilters">
 
-    <div class="check-progress-wrap">
+    <button class="filter-btn active"
+      onclick="setBoardFilter('전체',this)">
+      전체
+    </button>
 
-      <div class="progress">
-        <div class="progress-bar" id="progressBar"></div>
-      </div>
+    <button class="filter-btn"
+      onclick="setBoardFilter('자유',this)">
+      💬 자유
+    </button>
 
-      <div class="progress-text" id="progressText">
-        0 / 0
-      </div>
+    <button class="filter-btn"
+      onclick="setBoardFilter('맛집',this)">
+      🍽 맛집
+    </button>
 
-    </div>
+    <button class="filter-btn"
+      onclick="setBoardFilter('카페',this)">
+      ☕ 카페
+    </button>
 
+    <button class="filter-btn"
+      onclick="setBoardFilter('장소',this)">
+      📍 장소
+    </button>
 
-    <div class="check-grid" id="checkList"></div>
+    <button class="filter-btn"
+      onclick="setBoardFilter('질문',this)">
+      ❓ 질문
+    </button>
 
+    <button class="filter-btn"
+      onclick="setBoardFilter('공지',this)">
+      📢 공지
+    </button>
 
-    <div class="add-row">
+  </div>
 
-      <input
-        id="newCheckInput"
-        placeholder="추가 준비물 입력"
-        onkeydown="if(event.key==='Enter')addChecklist()"
-      >
+  <!-- 정렬 -->
 
-      <button
-        class="btn btn-primary"
-        onclick="addChecklist()"
-      >
-        추가
-      </button>
+  <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
 
+    <select
+      id="boardSort"
+      style="width:140px"
+      onchange="renderBoard()"
+    >
+      <option value="latest">최신순</option>
+      <option value="likes">❤️ 좋아요순</option>
+    </select>
+
+  </div>
+
+  <!-- 게시글 목록 -->
+
+  <div id="boardList">
+
+    <div class="card empty">
+      아직 작성된 의견이 없어요.<br>
+      첫 번째 여행 의견을 남겨보세요! 💙
     </div>
 
   </div>
 
 </section>
-
+  
 </main>
 
 
@@ -1923,11 +1958,13 @@ const defaultData={
     note:""
   },
 
-  places:[],
+ places:[],
 
-  expenses:[],
+opinions:[],
 
-  people:4,
+expenses:[],
+
+people:4,
 
   checklist:[
     {id:"c1",text:"신분증",done:false},
@@ -3127,16 +3164,282 @@ function toast(msg){
   },2100);
 }
 
+/* ==============================
+   OPINION BOARD
+============================== */
 
+let opinionSort = "recent";
+
+function renderOpinions(){
+
+  if(!Array.isArray(data.opinions)){
+    data.opinions = [];
+  }
+
+  const section =
+    document.getElementById("opinions") ||
+    document.getElementById("opinion") ||
+    document.getElementById("memo") ||
+    [...document.querySelectorAll("section")]
+      .find(el => /의견|메모|아이디어|수다/.test(
+        el.querySelector("h2")?.textContent || ""
+      ));
+
+  if(!section) return;
+
+  let board = document.getElementById("opinionBoardApp");
+
+  if(!board){
+
+    board = document.createElement("div");
+    board.id = "opinionBoardApp";
+
+    // 기존 게시판 표시 영역은 숨기고 새 게시판을 연결
+    [...section.children].forEach(el => {
+      if(!el.classList.contains("section-heading")){
+        el.style.display = "none";
+      }
+    });
+
+    section.appendChild(board);
+  }
+
+  const user = auth.currentUser;
+
+  const opinions = [...data.opinions];
+
+  if(opinionSort === "likes"){
+    opinions.sort((a,b) =>
+      (b.likes || []).length - (a.likes || []).length
+    );
+  }else{
+    opinions.reverse();
+  }
+
+  board.innerHTML = `
+
+    <div class="card" style="padding:22px;margin-bottom:18px">
+
+      <h3>💬 새로운 의견 작성</h3>
+
+      <select id="opinionCategory" style="margin-bottom:10px">
+        <option value="일정">🗓 일정</option>
+        <option value="맛집">🍽 맛집</option>
+        <option value="교통">🚌 교통</option>
+        <option value="기타">💡 기타</option>
+      </select>
+
+      <textarea
+        id="opinionInput"
+        placeholder="여행에 대한 의견을 자유롭게 적어주세요!"
+      ></textarea>
+
+      <button
+        class="btn btn-primary"
+        style="margin-top:10px;width:100%"
+        onclick="addOpinion()"
+      >
+        ＋ 의견 등록
+      </button>
+
+    </div>
+
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:15px;
+    ">
+
+      <strong>💙 친구들의 의견 (${opinions.length})</strong>
+
+      <select
+        style="width:125px"
+        onchange="opinionSort=this.value;renderOpinions()"
+      >
+        <option value="recent"
+          ${opinionSort==="recent"?"selected":""}>
+          최신순
+        </option>
+
+        <option value="likes"
+          ${opinionSort==="likes"?"selected":""}>
+          좋아요순
+        </option>
+      </select>
+
+    </div>
+
+    ${opinions.length === 0
+      ? `<div class="card empty">
+          아직 작성된 의견이 없어요.<br>
+          첫 번째 의견을 남겨보세요!
+        </div>`
+      : opinions.map(x => {
+
+        const likes = x.likes || [];
+        const liked = user && likes.includes(user.uid);
+        const mine = user && x.authorId === user.uid;
+
+        return `
+
+          <div class="card" style="
+            padding:20px;
+            margin-bottom:12px;
+          ">
+
+            <div style="
+              display:flex;
+              justify-content:space-between;
+              align-items:center;
+            ">
+
+              <strong>
+                ${escapeHTML(x.authorName)}
+              </strong>
+
+              <span class="chip">
+                ${escapeHTML(x.category || "기타")}
+              </span>
+
+            </div>
+
+            <p style="
+              font-size:13px;
+              line-height:1.8;
+              white-space:pre-wrap;
+            ">${escapeHTML(x.text)}</p>
+
+            <div style="
+              display:flex;
+              justify-content:space-between;
+              align-items:center;
+            ">
+
+              <button
+                class="btn ${liked?"btn-primary":"btn-light"}"
+                onclick='toggleOpinionLike(${JSON.stringify(x.id)})'
+              >
+                ${liked?"❤️":"🤍"} 좋아요 ${likes.length}
+              </button>
+
+              ${mine
+                ? `<button
+                    class="btn btn-red"
+                    onclick='deleteOpinion(${JSON.stringify(x.id)})'
+                  >
+                    삭제
+                  </button>`
+                : ""
+              }
+
+            </div>
+
+          </div>
+
+        `;
+
+      }).join("")
+    }
+
+  `;
+}
+
+
+function addOpinion(){
+
+  const user = auth.currentUser;
+
+  if(!user){
+    toast("로그인 후 의견을 작성할 수 있어요.");
+    return;
+  }
+
+  const input = document.getElementById("opinionInput");
+  const text = input.value.trim();
+
+  if(!text){
+    toast("의견을 입력해주세요.");
+    return;
+  }
+
+  data.opinions.push({
+    id:uid(),
+    authorId:user.uid,
+    authorName:user.displayName || user.email,
+    category:document.getElementById("opinionCategory").value,
+    text:text,
+    likes:[],
+    createdAt:Date.now()
+  });
+
+  persist();
+  renderOpinions();
+
+  toast("의견을 등록했어요!");
+}
+
+
+function toggleOpinionLike(id){
+
+  const user = auth.currentUser;
+
+  if(!user){
+    toast("로그인 후 좋아요를 누를 수 있어요.");
+    return;
+  }
+
+  const opinion = data.opinions.find(x => x.id === id);
+
+  if(!opinion) return;
+
+  if(!Array.isArray(opinion.likes)){
+    opinion.likes = [];
+  }
+
+  const index = opinion.likes.indexOf(user.uid);
+
+  if(index >= 0){
+    opinion.likes.splice(index,1);
+  }else{
+    opinion.likes.push(user.uid);
+  }
+
+  persist();
+  renderOpinions();
+}
+
+
+function deleteOpinion(id){
+
+  const user = auth.currentUser;
+
+  const opinion = data.opinions.find(x => x.id === id);
+
+  if(!user || !opinion || opinion.authorId !== user.uid){
+    toast("본인이 작성한 의견만 삭제할 수 있어요.");
+    return;
+  }
+
+  if(!confirm("이 의견을 삭제할까요?")) return;
+
+  data.opinions = data.opinions.filter(x => x.id !== id);
+
+  persist();
+  renderOpinions();
+
+  toast("의견을 삭제했어요.");
+}
 /* INITIAL */
 
+  
 function renderAll(){
   renderSchedules();
   renderBus();
   renderHotel();
   renderPlaces();
   renderExpenses();
-  renderChecklist();
+  renderOpinions();
 }
 
 renderAll();
